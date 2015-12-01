@@ -2,11 +2,14 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
-#define VECTOR_SIZE 1200
+
 
 int main(int argc, char** argv){
+   int VECTOR_SIZE = 1200;
+   if(argc > 1){
+     VECTOR_SIZE = atoi(argv[1]);
+   }
    int size, rank;
-
    MPI_Init(&argc, &argv);
    MPI_Comm_size(MPI_COMM_WORLD, &size);//gets number of processes
    MPI_Comm_rank(MPI_COMM_WORLD, &rank);//gets process id
@@ -20,11 +23,11 @@ int main(int argc, char** argv){
       a = malloc(sizeof(int) * VECTOR_SIZE);
       b = malloc(sizeof(int) * VECTOR_SIZE);
       for(int i = 0; i < VECTOR_SIZE; i++){
-         //a[i] = rand() % 100;
-         //b[i] = rand() % 100;
-         a[i] = 1;
-         b[i] = 1;
+         a[i] = rand() % 100;
+         b[i] = rand() % 100;
       }
+      //keeping track of time
+      int start_t = clock();
    }
 
    //printf("got here 1 and i am %d\n", rank);
@@ -33,6 +36,8 @@ int main(int argc, char** argv){
    int piece_size = VECTOR_SIZE / size;
    int* a_piece = malloc(sizeof(int) * piece_size);
    int* b_piece = malloc(sizeof(int) * piece_size);
+
+
 
    //distribute a
    MPI_Scatter(
@@ -90,8 +95,13 @@ int main(int argc, char** argv){
        sum += sub_products[i];
      }
      printf("sum = %d\n", sum);
+     int end_t = clock();
+     int duration = (end_t - start_t);
+     printf("it took %d ms\n", duration);
    }
 
    MPI_Finalize();
+
+
    return 0;
 }
