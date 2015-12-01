@@ -36,14 +36,14 @@ int main(int argc, char** argv){
 
    //distribute a
    MPI_Scatter(
-      a,
-      piece_size,
-      MPI_INT,
-      (void*) a_piece,
-      piece_size,
-      MPI_INT,
-      0,
-      MPI_COMM_WORLD
+      a, //a to be scattered
+      piece_size, //number elements per process
+      MPI_INT, //send type
+      (void*) a_piece, //buffer to store delegated piece of a
+      piece_size, // size of delegated piece
+      MPI_INT, //receive type
+      0, //root process index
+      MPI_COMM_WORLD //
    );
 
    //distribute b
@@ -70,20 +70,23 @@ int main(int argc, char** argv){
 
    //gather answers from each process
    MPI_Gather(
-     &dot_product,
-     1,
-     MPI_INT,
-     sub_products,
-     size,
-     MPI_INT,
-     0,
+     &dot_product, //data to send to root
+     1, //size of gathered data
+     MPI_INT, //send type
+     sub_products, //buffer on root to store received data
+     1, //received data size (per process)
+     MPI_INT, //receive type
+     0, //root index
      MPI_COMM_WORLD
    );
+
+
 
    //sum up all pieces in root node and print answer
    if(rank == 0){
      int sum = 0;
      for(int i = 0; i < size; i++){
+       printf("%d\n", sub_products[i]);
        sum += sub_products[i];
      }
      printf("sum = %d\n", sum);
